@@ -1,9 +1,9 @@
 /*----------------------------------------------------------
  *				HTBLA-Leonding / Class: <your class>
  * ---------------------------------------------------------
- * Exercise Number: 0
+ * Exercise Number: 6
  * Title:			Pyramid of Numbers
- * Author:			<your name>
+ * Author:			Muhammet Batuhan Oezdogan
  * ----------------------------------------------------------
  * Description:
  * Calculates a pyramid of numbers, i.e., it multiplies a big
@@ -13,6 +13,7 @@
  * ----------------------------------------------------------
  */
 #include <stdio.h>
+#include <string.h>
 
 /// The maximum number of digits allowed in a big int.
 #define MAX_DIGITS 80
@@ -76,5 +77,108 @@ void copy_big_int(const struct BigInt *from, struct BigInt *to);
 */
 int main(int argc, char *argv[])
 {
-	return 0;
+	char input[MAX_DIGITS+1];
+  printf("Pyramid of Numbers\n" );
+  printf("Please enter a number: " );
+  scanf("%s",input);
+  int length = strlen(input);
+
+  struct BigInt big_int;
+  struct BigInt big_result;
+  big_int.digits_count = strtobig_int(input, length, &big_int);
+  big_result.digits_count =big_int.digits_count;
+  int count = 2;
+
+  while (count <= 9)
+	{
+    print_big_int(&big_int);
+    printf(" * %d = ", count);
+    multiply(&big_int, count, &big_result);
+    print_big_int(&big_result);
+    printf("\n");
+    copy_big_int(&big_result, &big_int);
+    count++;
+  }
+  copy_big_int(&big_result, &big_int);
+  count = 2;
+  while (count <=9)
+	{
+    print_big_int(&big_int);
+    printf(" / %d = ", count);
+    divide(&big_int, count, &big_result);
+    print_big_int(&big_result);
+    printf("\n");
+    copy_big_int(&big_result, &big_int);
+    count++;
+  }
+}
+
+void print_big_int (const struct BigInt *big_int)
+{
+  for (int i = big_int->digits_count-1; i >=0 ; i--) {
+    printf("%d",big_int->the_int[i]); //Warum geht [i-1]nicht, wenn i=big_int->digits_count?
+  }
+}
+int strtobig_int(const char *string, int length, struct BigInt *big_int)
+{
+  int digits_count = 0;
+  length--;
+  for (int i = 0;i < length+1; i++)
+  {
+     if (string[i] >= '0' && string[i] <= '9'){
+       big_int->the_int[length-i] = string[i]-'0';
+       digits_count ++;
+      }
+    else{
+      return i;
+        }
+  }
+  return digits_count;
+}
+
+void multiply( const struct BigInt * big_int, int factor, struct BigInt * big_result)
+{
+  int product= 1;
+  int carry = 0;
+ for (int i = 0; i < big_int->digits_count ; i++)
+ {
+   product = big_int -> the_int[i] * factor +carry;
+   carry = product/10;
+   big_result->the_int[i] = product % 10;
+}
+  if (carry >0 ) {
+    big_result->digits_count++;
+    int index = big_result->digits_count-1;
+    big_result->the_int[index] = carry;
+  }
+}
+
+void divide(const struct BigInt * big_int, int divisor, struct BigInt *  big_result)
+{
+  int quotient= 0;
+  int rest = 0;
+  int digits_sum= 0;
+  int count_zeros = 0;
+ for (int i = big_int->digits_count-1; i >=0; i--)
+ {
+   quotient=big_int->the_int[i] + (rest*10);
+   big_result->the_int[i] = quotient/divisor;
+   rest= quotient %divisor;
+   digits_sum+= big_result->the_int[i];
+   if ( big_result->the_int[i] == 0 && digits_sum == 0) {
+     count_zeros++;
+   }
+  }
+  big_result->digits_count -= count_zeros;
+}
+
+void copy_big_int(const struct BigInt * from, struct BigInt * to)
+{
+for (int i = 0; i < from -> digits_count; i++)
+  {
+  to->the_int[i] = from->the_int[i];
+  }
+  if (from->digits_count != to->digits_count) {
+    to->digits_count = from->digits_count;
+  }
 }
